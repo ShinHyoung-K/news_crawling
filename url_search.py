@@ -3,9 +3,19 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from queue import Queue
+import time  # 속도 제한을 위한 time 모듈
 
 # 정치 관련 URL 탐색 및 큐에 추가된 URL도 기록하는 BFS 함수
-def bfs_record_all_with_queue(news_site_url, output_file="political_articles.txt", queue_log_file="queue_log.txt", max_depth=2):
+def bfs_record_all_with_queue(news_site_url, output_file="political_articles.txt", queue_log_file="queue_log.txt", max_depth=3, delay=1):
+    """
+    BFS 탐색을 수행하며 정치 관련 URL을 기록.
+    
+    :param news_site_url: 탐색 시작 URL (뉴스 사이트 메인 URL)
+    :param output_file: 정치 관련 URL을 저장할 파일 이름
+    :param queue_log_file: 큐에 추가된 URL을 기록할 파일 이름
+    :param max_depth: BFS 탐색 깊이 제한
+    :param delay: 요청 간 대기 시간 (초)
+    """
     try:
         # BFS 탐색에 사용할 큐와 방문 기록 집합
         to_visit = Queue()
@@ -33,9 +43,12 @@ def bfs_record_all_with_queue(news_site_url, output_file="political_articles.txt
 
             try:
                 # 현재 URL의 HTML 가져오기
-                response = requests.get(current_url)
+                response = requests.get(current_url, timeout=10)
                 response.raise_for_status()
                 soup = BeautifulSoup(response.text, 'html.parser')
+
+                # 요청 간 대기
+                time.sleep(delay)
             except Exception as e:
                 print(f"URL 요청 실패: {current_url}, 오류: {e}")
                 continue
@@ -67,4 +80,4 @@ def bfs_record_all_with_queue(news_site_url, output_file="political_articles.txt
 
 # 함수 호출 예시
 news_site_url = "https://www.yna.co.kr/"  # 뉴스 사이트 메인 URL 입력
-bfs_record_all_with_queue(news_site_url)
+bfs_record_all_with_queue(news_site_url, delay=1)  # 요청 간 1초 대기
