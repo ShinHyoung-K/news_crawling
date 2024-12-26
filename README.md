@@ -30,3 +30,35 @@
     plt.show()
     
 ![image](https://github.com/user-attachments/assets/0eebcb2d-8fb8-47d0-aea5-8695d299fdab)
+
+
+
+
+#### 정치 성향 분류
+
+    # 텍스트 토큰화
+    inputs = tokenizer(
+        texts, 
+        padding=True, 
+        truncation=True, 
+        max_length=512, 
+        return_tensors='pt'
+    ).to(device)
+    
+    # 추론
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    # 확률 계산 (softmax 적용)
+    probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
+    
+    # 예측 라벨 추출
+    predictions = torch.argmax(probabilities, dim=-1).cpu().numpy()
+    
+    # 확률 값 추출
+    probabilities = probabilities.cpu().numpy()
+    
+    return predictions, probabilities
+    
+    return result
+![image](https://github.com/user-attachments/assets/9b5e6938-7863-4e7b-bd9f-84ee65a95a5a)
